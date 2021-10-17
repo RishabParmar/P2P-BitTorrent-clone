@@ -14,7 +14,7 @@ public class RequestModel {
     public RequestModel(Enums.MessageTypes e, Object o) {
         // Type:
         this.type = getType(e);
-        this.payload = getPayload(e, 0);
+        this.payload = getPayload(e, o);
         this.messageLength = getMessageLength();
     }
 
