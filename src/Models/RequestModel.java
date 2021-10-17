@@ -1,3 +1,5 @@
+package Models;
+
 import Utils.Enums;
 import org.apache.commons.lang.SerializationUtils;
 
