@@ -3,7 +3,8 @@ package Models;
 import Utils.Constants;
 
 public class HandshakeRequestModel {
-    public String handshakeHeader = Constants.HANDSHAKE_HEADER;
-    public String zeroBits;
-    public int peerId;
+
+    String header = Constants.HANDSHAKE_HEADER;
+    byte zeroBits[] = new byte[10];
+    int peerId = Constants.PEER_ID;
 }
