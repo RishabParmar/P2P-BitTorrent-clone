@@ -1,8 +1,9 @@
+package Core;
+
 import Models.PeerModel;
 import Utils.Constants;
 
 import java.io.*;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,10 +12,11 @@ import java.util.Scanner;
 public class PeerProcess {
 
     // peer object is the current peer and contains all the necessary information
-    PeerModel peer;
+    public static PeerModel peer;
 
     public void createPeer(int peerId) {
         try {
+            // Setting the peerId
             List<PeerModel> neighbors = new ArrayList<>();
             boolean hasDiscoveredCurrentPeer = false;
             File fileName = new File("src\\PeerInfo.cfg");
