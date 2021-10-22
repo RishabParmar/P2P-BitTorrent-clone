@@ -78,6 +78,7 @@ public class PeerProcess {
         peerProcess.setCommonInfoAsConstants();
         peerProcess.createPeer(Integer.parseInt(args[0]));
         // Start server:
-        ServerProcess.startServer();
+        new Thread(new ServerProcess()).start();
+
     }
 }

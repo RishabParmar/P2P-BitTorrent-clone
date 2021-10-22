@@ -5,23 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d0d2e40f-391f-4e18-9b97-506e92eb3e64" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ClientProcess.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ConnectionHandler.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/PeerProcess.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ServerProcess.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Models/BitFieldModel.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/image.JPG" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Core/ClientProcess.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Core/ConnectionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Core/ServerProcess.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/Models/BitFieldModel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Models/HandshakeRequestModel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Models/HandshakeRequestModel.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/PeerProcess.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Utils/Constants.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Utils/Constants.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ClientProcess.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ClientProcess.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ConnectionHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/PeerProcess.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/PeerProcess.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ServerProcess.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ServerProcess.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/image.JPG" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Core/ClientProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Core/ClientProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Core/PeerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Core/PeerProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Models/HandshakeRequestModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Models/HandshakeRequestModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Core/ServerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Core/ServerProcess.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
