@@ -12,6 +12,7 @@ import java.util.Scanner;
 public class PeerProcess {
 
     // peer object is the current peer and contains all the necessary information
+    public static List<Integer> listOfPeerIds = new ArrayList<>();
     public static PeerModel peer;
 
     public void createPeer(int peerId) {
@@ -30,14 +31,21 @@ public class PeerProcess {
                         data[3].equals("1"),
                         null
                         );
+                listOfPeerIds.add(currentPeer.peerId);
                 if(peerId != currentPeer.peerId && !hasDiscoveredCurrentPeer) neighbors.add(currentPeer);
-                else {
+                else if(!hasDiscoveredCurrentPeer) {
                     peer = currentPeer;
                     hasDiscoveredCurrentPeer = true;
                 }
             }
             // Set neighbors to the concerned peer running on the machine
             peer.neighbors = neighbors;
+//            System.out.println("Peer information: ");
+//            System.out.println(peer.peerId);
+//            System.out.println(peer.neighbors);
+//            System.out.println(peer.hasFile);
+//            System.out.println(peer.hostName);
+            System.out.println(listOfPeerIds);
             myReader.close();
         } catch (FileNotFoundException e) {
             System.err.println("Something went wrong with PeerInfo.cfg file!");
@@ -69,5 +77,7 @@ public class PeerProcess {
         PeerProcess peerProcess = new PeerProcess();
         peerProcess.setCommonInfoAsConstants();
         peerProcess.createPeer(Integer.parseInt(args[0]));
+        // Start server:
+        ServerProcess.startServer();
     }
 }

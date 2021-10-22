@@ -5,9 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d0d2e40f-391f-4e18-9b97-506e92eb3e64" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ClientProcess.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ConnectionHandler.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/PeerProcess.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ServerProcess.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Models/BitFieldModel.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/image.JPG" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Core/ClientProcess.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Core/ConnectionHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Core/ServerProcess.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Models/BitFieldModel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/PeerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/PeerProcess.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Utils/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Utils/Constants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Models/HandshakeRequestModel.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Models/HandshakeRequestModel.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/PeerProcess.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Utils/Constants.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Utils/Constants.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Core/PeerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Core/PeerProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Models/HandshakeRequestModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Models/HandshakeRequestModel.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,15 +51,34 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src" />
     <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
   </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\parma\IdeaProjects\P2P BitTorrent clone\src" />
+    </key>
+  </component>
   <component name="RunManager" selected="Application.PeerProcess">
     <configuration name="PeerProcess" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="PeerProcess" />
+      <option name="MAIN_CLASS_NAME" value="Core.PeerProcess" />
       <module name="P2P BitTorrent clone" />
-      <option name="PROGRAM_PARAMETERS" value="1004" />
+      <option name="PROGRAM_PARAMETERS" value="1003" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ServerProcess" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Core.ServerProcess" />
+      <module name="P2P BitTorrent clone" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Core.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -60,10 +93,12 @@
     <list>
       <item itemvalue="Application.PeerProcess" />
       <item itemvalue="Application.Temp" />
+      <item itemvalue="Application.ServerProcess" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.PeerProcess" />
+        <item itemvalue="Application.ServerProcess" />
         <item itemvalue="Application.Temp" />
       </list>
     </recent_temporary>
