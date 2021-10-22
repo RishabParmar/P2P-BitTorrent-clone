@@ -8,7 +8,7 @@ public class ServerProcess implements Runnable{
     @Override
     public void run() {
         try {
-            ServerSocket serverSocket = new ServerSocket(PeerProcess.peer.peerId);
+            ServerSocket serverSocket = new ServerSocket(PeerProcess.peer.port);
             while(true) {
                 Socket client = serverSocket.accept();
                 System.out.println("Client: " + client);

@@ -79,6 +79,6 @@ public class PeerProcess {
         peerProcess.createPeer(Integer.parseInt(args[0]));
         // Start server:
         new Thread(new ServerProcess()).start();
-
+        new ClientProcess().createPeerConnections();
     }
 }

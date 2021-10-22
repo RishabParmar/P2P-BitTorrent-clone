@@ -7,13 +7,12 @@
     <list default="true" id="d0d2e40f-391f-4e18-9b97-506e92eb3e64" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ClientProcess.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ClientProcess.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ConnectionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ConnectionHandler.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/PeerProcess.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/PeerProcess.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ServerProcess.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/Core/ServerProcess.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/P2P BitTorrent clone/image.JPG" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Core/ClientProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Core/ClientProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Core/PeerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Core/PeerProcess.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Core/ServerProcess.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Core/ServerProcess.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/PeerInfo.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/src/PeerInfo.cfg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,7 +56,7 @@
     <configuration name="PeerProcess" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="Core.PeerProcess" />
       <module name="P2P BitTorrent clone" />
-      <option name="PROGRAM_PARAMETERS" value="1003" />
+      <option name="PROGRAM_PARAMETERS" value="1002" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>

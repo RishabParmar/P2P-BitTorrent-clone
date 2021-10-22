@@ -14,8 +14,9 @@ public class ClientProcess {
     public void createPeerConnections() {
         for(PeerModel currentPeer: PeerProcess.peer.neighbors) {
             try{
-                socket = new Socket(currentPeer.hostName, currentPeer.peerId);
-                new Thread(new ConnectionHandler(socket));
+                socket = new Socket(currentPeer.hostName, currentPeer.port);
+                System.out.println("Yolo!");
+                new Thread(new ConnectionHandler(socket)).start();
                 System.out.println("Connection Established!");
             } catch (Exception e) {
                 System.out.println("Error establishing connection to server!");
