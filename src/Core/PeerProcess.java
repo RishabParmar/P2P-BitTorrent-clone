@@ -4,16 +4,15 @@ import Models.PeerModel;
 import Utils.Constants;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class PeerProcess {
 
     // peer object is the current peer and contains all the necessary information
     public static List<Integer> listOfPeerIds = new ArrayList<>();
     public static PeerModel peer;
+    public static int numberOfPieces;
+    public static HashMap<Integer, boolean[]> bitfieldMap = new HashMap<>();
 
     public void createPeer(int peerId) {
         try {
@@ -35,6 +34,11 @@ public class PeerProcess {
                 if(peerId != currentPeer.peerId && !hasDiscoveredCurrentPeer) neighbors.add(currentPeer);
                 else if(!hasDiscoveredCurrentPeer) {
                     peer = currentPeer;
+                    bitfieldMap.put(peer.peerId, new boolean[numberOfPieces]);
+                    if(peer.hasFile) {
+                        Arrays.fill(bitfieldMap.get(peer.peerId), true);
+                        System.out.println("Bitfields of the current peer: " + Arrays.toString(bitfieldMap.get(peer.peerId)));
+                    }
                     hasDiscoveredCurrentPeer = true;
                 }
             }
@@ -67,13 +71,14 @@ public class PeerProcess {
             // Updating the Constants file with Common.cfg information
             Constants constants = new Constants();
             constants.setCommonInfo(commonInfoMap);
+            numberOfPieces = Constants.FILE_SIZE / Constants.PIECE_SIZE;
         } catch (FileNotFoundException e) {
             System.err.println("Something went wrong with Common.cfg file!");
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         PeerProcess peerProcess = new PeerProcess();
         peerProcess.setCommonInfoAsConstants();
         peerProcess.createPeer(Integer.parseInt(args[0]));

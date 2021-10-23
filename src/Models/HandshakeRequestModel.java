@@ -3,7 +3,9 @@ package Models;
 import Core.PeerProcess;
 import Utils.Constants;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class HandshakeRequestModel {
 
@@ -38,5 +40,19 @@ public class HandshakeRequestModel {
         int handShakePeerId = ByteBuffer.wrap(peerIdBytes).getInt();
         System.out.println("Unpacked peerId: " + handShakePeerId);
         return handShakePeerId;
+    }
+
+    public void unpackAndValidateHeader(byte[] handShakeHeaderBytes) throws Exception {
+        byte[] headerBytes = Arrays.copyOfRange(handShakeHeaderBytes , 0, 18);
+        String header = new String(headerBytes);
+        int senderPeedId;
+        if(!header.equals(Constants.HANDSHAKE_HEADER))
+            throw new IOException("Handshake message is not valid!!!");
+        // Extracting the peerId of the sender
+        senderPeedId = getSenderPeerId(handShakeHeaderBytes);
+        // Validating the peer
+        if(!PeerProcess.listOfPeerIds.contains(senderPeedId)) {
+            throw new Exception("Unidentified peer detected! Closing connection...");
+        }
     }
 }

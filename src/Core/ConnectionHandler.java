@@ -1,7 +1,9 @@
 package Core;
 
 import Models.HandshakeRequestModel;
+import Models.RequestModel;
 import Utils.Constants;
+import Utils.Enums;
 import org.apache.commons.lang.SerializationUtils;
 
 import java.io.*;
@@ -38,22 +40,21 @@ public class ConnectionHandler implements Runnable{
             byte[] handShakeHeaderBytes = new byte[32];
             in.read(handShakeHeaderBytes);
             System.out.println(Arrays.toString(handShakeHeaderBytes));
-            byte[] headerBytes = Arrays.copyOfRange(handShakeHeaderBytes , 0, 18);
-            String header = new String(headerBytes);
-            if(!header.equals(Constants.HANDSHAKE_HEADER))
-                throw new IOException("Handshake message is not valid!!!");
-            // Extracting the peerId of the sender
-            senderPeedId = new HandshakeRequestModel().getSenderPeerId(handShakeHeaderBytes);
-            if(!PeerProcess.listOfPeerIds.contains(senderPeedId)) {
-                System.err.println("Unidentified peer detected! Closing connection...");
-                in.close();
-                socket.close();
-            }
-        } catch (IOException ex) {
-            System.err.println("Something went wrong while reading the messages from the sender");
+            // Unpacking the received handshake header and validating its peerId
+            new HandshakeRequestModel().unpackAndValidateHeader(handShakeHeaderBytes);
+            // Sending the bitfield message to the neighboring peer
+            //TODO: Check whether the peer has some pieces: If it does not, don't send the bitfield message
+//            out.write(new RequestModel<>(Enums.MessageTypes.BITFIELD,
+//                    PeerProcess.bitfieldMap.get(PeerProcess.peer.peerId)).getBytes());
+//            out.write(new RequestModel<>(Enums.MessageTypes.BITFIELD, new boolean[128]).getBytes());
+//            // Reading the bitfield message that is being received
+//            byte[] bitfieldMessage= new byte[135/8];
+//           // in.read(bitfieldMessage);
+//            System.out.println("BitFiled Message: " + Arrays.toString(bitfieldMessage));
+        } catch (Exception ex) {
+            System.err.println("Something went wrong while reading the messages from the sender " + ex);
         }
         try{
-//            out.close();
             in.close();
             socket.close();
         } catch (IOException e) {
