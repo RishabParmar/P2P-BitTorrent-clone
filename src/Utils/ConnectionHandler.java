@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,7 +87,18 @@ public class ConnectionHandler implements Runnable{
         }
     }
 
-    private void processBitfieldRequest(byte[] b) {
-
+    private void processBitfieldRequest(byte[] bytes) {
+        //BitSet set = new BitSet(Constants.FILE_PIECES_COUNT);
+        int tempValue = 0;
+        boolean[] pieces = new boolean[bytes.length * 8];
+        for (int b = bytes.length - 1; b >= 5; b--) {
+            for (int j = 0; j < 8; j++) {
+                tempValue = (bytes[b] >> j) & 0x01;
+                if (tempValue == 1) {
+                    pieces[((bytes.length - 1 - b) * 8) + j] = true;
+                }
+            }
+        }
+        map.get(peerId).setPieces(pieces);
     }
 }

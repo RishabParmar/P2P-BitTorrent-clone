@@ -73,4 +73,8 @@ public class PeerInfoModel {
         pieces[position] = true;
         pieceCount++;
     }
+
+    public void setPieces(boolean[] pieces) {
+        this.pieces = pieces;
+    }
 }
