@@ -5,6 +5,7 @@ import Utils.Constants;
 public class PeerInfoModel {
     private int peerId;
     private boolean[] pieces = new boolean[Constants.FILE_PIECES_COUNT];
+    private static int[] requestedPieces = new int[Constants.FILE_PIECES_COUNT];
     private boolean choke;
     private boolean interested;
     private double uploadRate;
@@ -25,14 +26,11 @@ public class PeerInfoModel {
         this.choke = true;
         this.optimisticallyUnchoked = false;
         this.preferredNeighbour = false;
+        //TODO: reset requestedPieces array  to zero which are not downloaded
     }
 
-    public void setInterested() {
-        this.interested = true;
-    }
-
-    public void setUninterested() {
-        this.interested = false;
+    public void setInterested(boolean interested) {
+        this.interested = interested;
     }
 
     public void setoptimisticallyUnchoked() {
@@ -76,5 +74,9 @@ public class PeerInfoModel {
 
     public void setPieces(boolean[] pieces) {
         this.pieces = pieces;
+    }
+
+    public static int[] getrequestedPieces() {
+        return requestedPieces;
     }
 }

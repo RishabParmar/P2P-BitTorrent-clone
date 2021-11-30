@@ -20,12 +20,17 @@ public class RequestModel<T> {
     }
 
     private byte getType(Enums.MessageTypes e) {
-        BitSet bitSet = new BitSet(8);
-        bitSet.set(e.getValue(), true);
-        return  bitSet.toByteArray()[0];
+//        BitSet bitSet = new BitSet(8);
+//        bitSet.set(e.getValue(), true);
+//        return  bitSet.toByteArray()[0];
+        byte type = (byte)e.getValue();
+        int x = type;
+        System.out.println(type + " " + x);
+        return type;
     }
 
-    private <T> byte[] getPayload(Enums.MessageTypes e, T o) {
+    private byte[] getPayload(Enums.MessageTypes e, T o) {
+        byte[] res = null;
         try{
             if(e == Enums.MessageTypes.BITFIELD) {
                 boolean[] bitfield = (boolean[]) o;
@@ -35,20 +40,22 @@ public class RequestModel<T> {
                 for(int i = 0; i < bitset.size(); i++) {
                     if(bitfield[i]) bitset.set(i, true);
                 }
-                byte[] res = bitset.toByteArray();
+                res = bitset.toByteArray();
                 System.out.println("res: " + res.length);
+            } else if(e == Enums.MessageTypes.REQUEST) {
+                res = ByteBuffer.allocate(4).putInt((int)o).array();
             }
         } catch (Exception ee) {
             System.out.println("1234 " + ee);
         }
-
+        return res;
         //  ---------------------- Handle piece content !!!! --------------------------------
-        return SerializationUtils.serialize((Serializable) o);
+        //return SerializationUtils.serialize((Serializable) o);
     }
 
     private int getMessageLength() {
         // this.payload.length will give number of bytes and 1 byte for type and 4 bytes for messageLength itself
-        return this.payload.length + 5;
+        return this.payload != null ? this.payload.length + 5 : 5;
     }
 
     public byte[] getBytes() {
