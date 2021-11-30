@@ -2,6 +2,8 @@ package Models;
 
 import Utils.Constants;
 
+import java.io.OutputStream;
+
 public class PeerInfoModel {
     private int peerId;
     private boolean[] pieces = new boolean[Constants.FILE_PIECES_COUNT];
@@ -12,6 +14,7 @@ public class PeerInfoModel {
     private boolean optimisticallyUnchoked;
     private boolean preferredNeighbour;
     private int pieceCount;
+    private OutputStream outputStream;
 
     public PeerInfoModel(int peerId) {
         this.peerId = peerId;
@@ -78,5 +81,13 @@ public class PeerInfoModel {
 
     public static int[] getrequestedPieces() {
         return requestedPieces;
+    }
+
+    public void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
+
+    public OutputStream getOutputStream() {
+        return this.outputStream;
     }
 }

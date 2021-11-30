@@ -42,7 +42,7 @@ public class RequestModel<T> {
                 }
                 res = bitset.toByteArray();
                 System.out.println("res: " + res.length);
-            } else if(e == Enums.MessageTypes.REQUEST) {
+            } else if(e == Enums.MessageTypes.REQUEST || e == Enums.MessageTypes.HAVE) {
                 res = ByteBuffer.allocate(4).putInt((int)o).array();
             }
         } catch (Exception ee) {
@@ -55,7 +55,7 @@ public class RequestModel<T> {
 
     private int getMessageLength() {
         // this.payload.length will give number of bytes and 1 byte for type and 4 bytes for messageLength itself
-        return this.payload != null ? this.payload.length + 5 : 5;
+        return this.payload != null ? this.payload.length + 1 : 1;
     }
 
     public byte[] getBytes() {

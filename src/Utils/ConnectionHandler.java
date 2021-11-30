@@ -18,6 +18,9 @@ public class ConnectionHandler implements Runnable{
     OutputStream out;
     private int peerId;
     private static Map<Integer, PeerInfoModel> map = new HashMap<>();
+    boolean[] selfPieces = map.get(Constants.SELF_PEER_ID).getPieces();
+    boolean[] peerPieces = map.get(peerId).getPieces();
+    int[] requestedPieces = PeerInfoModel.getrequestedPieces();
     private static Random random = new Random();
     private final String filePath = "C:\\Users\\W10\\Desktop\\UFL\\CN\\Project\\sample.jpg";
     public ConnectionHandler(Socket socket) {
@@ -29,14 +32,13 @@ public class ConnectionHandler implements Runnable{
         try{
             in = socket.getInputStream();
             out = socket.getOutputStream();
-
             System.out.println("handshake initiated");
             handshake();
             System.out.println("handshake completed");
             sendBitfield();
             System.out.println("bitfield completed");
 
-            byte[] inputStreamByteArray = new byte[ 32773 ];
+            byte[] inputStreamByteArray = new byte[ 32777 ];
             in.read(inputStreamByteArray);
             //byte[] inputStreamPayload = ByteStreams.toByteArray(in);
 
@@ -57,6 +59,8 @@ public class ConnectionHandler implements Runnable{
             in.read(headerBytes);
             peerId = HandshakeRequestModel.getPeerHandshakeModel(headerBytes);
             addNewPeer(new PeerInfoModel(peerId));
+            map.get(peerId).setOutputStream(out);
+
         } catch (Exception e) {
             System.out.println("handshake error! " + e);
             //TODO: logger
@@ -103,6 +107,8 @@ public class ConnectionHandler implements Runnable{
                 case HAVE:
                     processIncomingHaveStatus(b);
                     break;
+                case PIECE:
+                    processIncomingPieceStatus(b);
                 default:
                     System.out.println("invalid message type received");
             }
@@ -110,6 +116,32 @@ public class ConnectionHandler implements Runnable{
             System.out.println("error at process input stream " + e);
             //TODO: log
         }
+    }
+
+    private void processIncomingPieceStatus(byte[] b) {
+        int pieceContentSize = ByteBuffer.wrap(new byte[]{b[0], b[1], b[2], b[3]}).getInt() - 5;
+        int pieceIndex = ByteBuffer.wrap(new byte[]{b[5], b[6], b[7], b[8]}).getInt();
+        updateIncomingPiece(pieceContentSize, pieceIndex, b);
+        sendHaveMessage(pieceIndex);
+        selectAndSendRandomPieceRequest();
+    }
+
+    private void sendHaveMessage(int index) {
+        try {
+            RequestModel<Integer> requestModel = new RequestModel(Enums.MessageTypes.HAVE, index);
+            for(int peerID : map.keySet()) {
+                if(peerID == Constants.SELF_PEER_ID) continue;
+                OutputStream outputStream = map.get(peerID).getOutputStream();
+                outputStream.write(requestModel.getBytes());
+            }
+        } catch (Exception e) {
+            System.out.println("error in sendHaveMessages! " + e);
+        }
+    }
+
+    private void updateIncomingPiece(int size, int pieceIndex, byte[] b){
+        //TODO: add to file
+        map.get(Constants.SELF_PEER_ID).getPieces()[pieceIndex] = true;
     }
 
     private void processIncomingHaveStatus(byte[] b) {
@@ -155,12 +187,12 @@ public class ConnectionHandler implements Runnable{
         }
     }
 
-    private synchronized void processIncomingUnchokeStatus() {
-        boolean[] selfPieces = map.get(Constants.SELF_PEER_ID).getPieces();
-        boolean[] peerPieces = map.get(peerId).getPieces();
-        int[] requestedPieces = PeerInfoModel.getrequestedPieces();
+    private void processIncomingUnchokeStatus() {
+        selectAndSendRandomPieceRequest();
+    }
+
+    private synchronized void selectAndSendRandomPieceRequest() {
         List<Integer> list = new ArrayList<>();
-        //---begin lock
         for(int i = 0; i < selfPieces.length; i++) {
             if(!selfPieces[i] && peerPieces[i] && requestedPieces[i] <= 0) list.add(i);
         }
@@ -170,7 +202,6 @@ public class ConnectionHandler implements Runnable{
         }
         int randomPieceIndexToBeRequested = list.get(random.nextInt(list.size()));
         sendPieceRequest(randomPieceIndexToBeRequested);
-        //---end lock
     }
 
     private synchronized void processIncomingChokeStatus() {
