@@ -30,6 +30,7 @@ public class RequestModel<T> {
     }
 
     private byte[] getPayload(Enums.MessageTypes e, T o) {
+        if(o == null) return null;
         byte[] res = null;
         try{
             if(e == Enums.MessageTypes.BITFIELD) {
@@ -43,7 +44,9 @@ public class RequestModel<T> {
                 res = bitset.toByteArray();
                 System.out.println("res: " + res.length);
             } else if(e == Enums.MessageTypes.REQUEST || e == Enums.MessageTypes.HAVE) {
-                res = ByteBuffer.allocate(4).putInt((int)o).array();
+                res = ByteBuffer.allocate(4).putInt((Integer) o).array();
+            } else {
+                return (byte[])o;
             }
         } catch (Exception ee) {
             System.out.println("1234 " + ee);

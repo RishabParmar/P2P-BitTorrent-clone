@@ -109,19 +109,33 @@ public class ConnectionHandler implements Runnable{
                     break;
                 case PIECE:
                     processIncomingPieceStatus(b);
+                case REQUEST:
+                    processIncomingRequestStatus(b);
                 default:
                     System.out.println("invalid message type received");
             }
         } catch (Exception e) {
-            System.out.println("error at process input stream " + e);
+            System.out.println("error at process input stream! " + e);
             //TODO: log
         }
     }
 
+    private void processIncomingRequestStatus(byte[] b) {
+        try {
+            int pieceIndex = ByteBuffer.wrap(new byte[]{b[5], b[6], b[7], b[8]}).getInt();
+            RequestModel requestModel = new RequestModel(Enums.MessageTypes.PIECE, FileUtils.getBytes(pieceIndex));
+            if(map.get(peerId).isChoke()) return;
+            out.write(requestModel.getBytes());
+        } catch (Exception e) {
+            System.out.println("error processing incomingRequestStatus! " + e);
+        }
+    }
+
     private void processIncomingPieceStatus(byte[] b) {
-        int pieceContentSize = ByteBuffer.wrap(new byte[]{b[0], b[1], b[2], b[3]}).getInt() - 5;
+        //int pieceContentSize = ByteBuffer.wrap(new byte[]{b[0], b[1], b[2], b[3]}).getInt() - 5;
         int pieceIndex = ByteBuffer.wrap(new byte[]{b[5], b[6], b[7], b[8]}).getInt();
-        updateIncomingPiece(pieceContentSize, pieceIndex, b);
+        //updateIncomingPiece(pieceContentSize, pieceIndex, Arrays.copyOfRange(b, 9, b.length));
+        updateIncomingPiece(b, pieceIndex, 9);
         sendHaveMessage(pieceIndex);
         selectAndSendRandomPieceRequest();
     }
@@ -139,16 +153,17 @@ public class ConnectionHandler implements Runnable{
         }
     }
 
-    private void updateIncomingPiece(int size, int pieceIndex, byte[] b){
+    private void updateIncomingPiece(byte[] b, int pieceIndex, int offset){
         //TODO: add to file
+        FileUtils.createFile(b, pieceIndex, offset);
         map.get(Constants.SELF_PEER_ID).getPieces()[pieceIndex] = true;
     }
 
     private void processIncomingHaveStatus(byte[] b) {
         int index = ByteBuffer.wrap(new byte[]{b[5], b[6], b[7], b[8]}).getInt();
         map.get(peerId).getPieces()[index] = true;
-        if(checkIfInterested()) sendInterested(false);
-        else sendInterested(true);
+        if(checkIfInterested()) sendInterested(true);
+        else sendInterested(false);
     }
 
     private void processBitfieldRequest(byte[] bytes) {
@@ -228,5 +243,61 @@ public class ConnectionHandler implements Runnable{
             if(!selfPieces[i] && peerPieces[i]) return true;
         }
         return false;
+    }
+
+    public static Map<Integer, PeerInfoModel> getPeers() {
+        return map;
+    }
+
+    public static void setPreferredNeighbourAndUnchoke(int peerId) {
+        try {
+            PeerInfoModel peerInfoModel = map.get(peerId);
+            if(!peerInfoModel.isChoke()){
+                peerInfoModel.setPreferredNeighbour();
+            } else {
+                peerInfoModel.setPreferredNeighbour();
+                RequestModel requestModel = new RequestModel(Enums.MessageTypes.UNCHOKE, null);
+                peerInfoModel.getOutputStream().write(requestModel.getBytes());
+            }
+        } catch (Exception e) {
+            System.out.println("Error unchoking peer " + peerId + "! " + e);
+        }
+    }
+
+    public static void removePreferredNeighbourAndChoke(int peerId) {
+        try {
+            RequestModel requestModel = new RequestModel(Enums.MessageTypes.CHOKE, null);
+            PeerInfoModel peerInfoModel = map.get(peerId);
+            peerInfoModel.choke();
+            peerInfoModel.getOutputStream().write(requestModel.getBytes());
+        } catch (Exception e) {
+            System.out.println("Error choking peer " + peerId + "! " + e);
+        }
+    }
+
+    public static void setNeighborOptimisticallyAndUnchoke(int peerId) {
+        try {
+            RequestModel requestModel = new RequestModel(Enums.MessageTypes.UNCHOKE, null);
+            PeerInfoModel peerInfoModel = map.get(peerId);
+            peerInfoModel.setoptimisticallyUnchoked(true);
+            peerInfoModel.getOutputStream().write(requestModel.getBytes());
+        } catch (Exception e) {
+            System.out.println("Error setting optimistically unchoke neighbor " + peerId + "! " + e);
+        }
+    }
+
+    public static void removeOptimisticallyUnchokedNeighborAndChoke(int peerId) {
+        try {
+            PeerInfoModel peerInfoModel = map.get(peerId);
+            peerInfoModel.setoptimisticallyUnchoked(false);
+            if(peerInfoModel.isPreferredNeighbour()) {
+                return;
+            }
+            peerInfoModel.choke();
+            RequestModel requestModel = new RequestModel(Enums.MessageTypes.CHOKE, null);
+            peerInfoModel.getOutputStream().write(requestModel.getBytes());
+        } catch (Exception e) {
+            System.out.println("Error chocking optimistically unchoked neighbor " + peerId + "! " + e);
+        }
     }
 }

@@ -36,14 +36,18 @@ public class PeerInfoModel {
         this.interested = interested;
     }
 
-    public void setoptimisticallyUnchoked() {
-        this.optimisticallyUnchoked = true;
-        this.choke = false;
+    public void setoptimisticallyUnchoked(boolean flag) {
+        this.optimisticallyUnchoked = flag;
+        if(flag) {
+            this.choke = false;
+        }
+
     }
 
     public void setPreferredNeighbour() {
         this.preferredNeighbour = true;
         this.choke = false;
+        //TODO: reset downloading speed to zero
     }
 
     public boolean isInterested() {
@@ -90,4 +94,5 @@ public class PeerInfoModel {
     public OutputStream getOutputStream() {
         return this.outputStream;
     }
+
 }
