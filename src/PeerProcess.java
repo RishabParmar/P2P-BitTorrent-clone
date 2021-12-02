@@ -39,8 +39,19 @@ public class PeerProcess {
         new File(Constants.FILE_DIRECTORY_PATH).mkdirs();
         ConnectionHandler.addNewPeer(new PeerInfoModel(Constants.SELF_PEER_ID));
         //TODO: if(peer has file) --> below line + update bitfield of current peer
-        FileUtils.splitFile(Constants.FILE_DIRECTORY_PATH + "/" + "original.jpg", Constants.FILE_DIRECTORY_PATH);
+        //FileUtils.splitFile(Constants.FILE_DIRECTORY_PATH + "/" + "original.jpg", Constants.FILE_DIRECTORY_PATH);
         //TODO: for(previour peer ids ) create socket connection
+        Socket socket1 = null;
+        try {
+            socket1 = new Socket("10.3.1.19", 6666);
+            //Socket socket2 = new Socket("10.20.168.230", 1111);
+            //new Thread(new ConnectionHandler(socket2)).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        new Thread(new ConnectionHandler(socket1)).start();
+
+
         setInterval();
     }
 
