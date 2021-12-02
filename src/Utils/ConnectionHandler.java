@@ -3,8 +3,6 @@ package Utils;
 import Models.HandshakeRequestModel;
 import Models.PeerInfoModel;
 import Models.RequestModel;
-import com.google.common.io.ByteStreams;
-import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.Socket;
@@ -18,8 +16,8 @@ public class ConnectionHandler implements Runnable{
     OutputStream out;
     private int peerId;
     private static Map<Integer, PeerInfoModel> map = new HashMap<>();
-    boolean[] selfPieces = map.get(Constants.SELF_PEER_ID).getPieces();
-    boolean[] peerPieces = map.get(peerId).getPieces();
+    boolean[] selfPieces;
+    boolean[] peerPieces;
     int[] requestedPieces = PeerInfoModel.getrequestedPieces();
     private static Random random = new Random();
     private final String filePath = "C:\\Users\\W10\\Desktop\\UFL\\CN\\Project\\sample.jpg";
@@ -60,6 +58,8 @@ public class ConnectionHandler implements Runnable{
             peerId = HandshakeRequestModel.getPeerHandshakeModel(headerBytes);
             addNewPeer(new PeerInfoModel(peerId));
             map.get(peerId).setOutputStream(out);
+            selfPieces = map.get(Constants.SELF_PEER_ID).getPieces();
+            peerPieces = map.get(peerId).getPieces();
 
         } catch (Exception e) {
             System.out.println("handshake error! " + e);
