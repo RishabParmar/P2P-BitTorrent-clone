@@ -8,18 +8,20 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class PeerProcess {
-    int[] peers = new int[]{1001, 1002, 1003, 1004, 1005};
     private static boolean isTerminationRequested = false;
-
+    private static List<String> peerList;
+    private static ServerSocket serverSocket;
     public static void main(String[] args) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(6666);
+        Constants.setPeerId(Integer.parseInt(args[0]));
+        createPeerAndSocket(Constants.SELF_PEER_ID);
         setAndInitializeDefaults();
-
+        for(int i = 1; i < peerList.size(); i += 3) {
+            if(Integer.parseInt(peerList.get(i)) < Constants.SELF_PEER_ID)
+                new Thread(new ConnectionHandler(new Socket(peerList.get(i-1), Integer.parseInt(peerList.get(i))))).start();
+        }
         while(!isTerminationRequested) {
             Socket client = serverSocket.accept();
             new Thread(new ConnectionHandler(client)).start();
@@ -30,28 +32,15 @@ public class PeerProcess {
     }
 
     private static void setAndInitializeDefaults() {
-        Constants.setPeerId(1001);
-        //TODO: read config file and set unchoking intervals
-        Constants.setUnchokingInterval(5);
-        Constants.setOptimisticUnchokingInterval(15);
+
+        setCommonInfoAsConstants();
         String fileDirectoryPath = System.getProperty("user.dir") + "/out/production/P2P-BitTorrent-clone/peer_" + Constants.SELF_PEER_ID;
         Constants.setFileDirectoryPath(fileDirectoryPath);
         new File(Constants.FILE_DIRECTORY_PATH).mkdirs();
-        ConnectionHandler.addNewPeer(new PeerInfoModel(Constants.SELF_PEER_ID));
-        //TODO: if(peer has file) --> below line + update bitfield of current peer
-        //FileUtils.splitFile(Constants.FILE_DIRECTORY_PATH + "/" + "original.jpg", Constants.FILE_DIRECTORY_PATH);
-        //TODO: for(previour peer ids ) create socket connection
-        Socket socket1 = null;
-        try {
-            socket1 = new Socket("10.3.1.19", 6666);
-            //Socket socket2 = new Socket("10.20.168.230", 1111);
-            //new Thread(new ConnectionHandler(socket2)).start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        new Thread(new ConnectionHandler(socket1)).start();
+        //ConnectionHandler.addNewPeer(new PeerInfoModel(Constants.SELF_PEER_ID));
 
-
+        FileUtils.splitFile(Constants.FILE_DIRECTORY_PATH + "/" + "original.jpg", Constants.FILE_DIRECTORY_PATH);
+        Arrays.fill(ConnectionHandler.getPeers().get(Constants.SELF_PEER_ID).getPieces(), true);
         setInterval();
     }
 
@@ -60,21 +49,19 @@ public class PeerProcess {
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                // Your database code here
                 if(terminateProcess()) stopProcessAndExit();
                 ChokingService.chokeCurrentPreferredNeighbors();
                 ChokingService.unChokePreferredNeighbors();
             }
-        }, Constants.UNCHOKING_INTERVAL*60*1000, Constants.UNCHOKING_INTERVAL*60*1000);
+        }, Constants.UNCHOKING_INTERVAL*1000, Constants.UNCHOKING_INTERVAL*1000);
 
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                // Your database code here
                 ChokingService.chokeOptimisticallyUnchokedNeighbor();
                 ChokingService.unchokeNeighborOptimistically();
             }
-        }, Constants.OPTIMISTIC_UNCHOKING_INTERVAL*60*1000, Constants.OPTIMISTIC_UNCHOKING_INTERVAL*60*1000);
+        }, Constants.OPTIMISTIC_UNCHOKING_INTERVAL*1000, Constants.OPTIMISTIC_UNCHOKING_INTERVAL*1000);
     }
 
     private static void stopProcessAndExit() {
@@ -88,5 +75,56 @@ public class PeerProcess {
             if(map.get(peerId).getPieceCount() != Constants.FILE_PIECES_COUNT) return false;
         }
         return true;
+    }
+
+    public static void setCommonInfoAsConstants() {
+        try {
+            HashMap<String, String> commonInfoMap = new HashMap<>();
+            File fileName = new File("src\\Common.cfg");
+            Scanner myReader = new Scanner(fileName);
+            while (myReader.hasNextLine()) {
+                String[] data = myReader.nextLine().split("\\s+");
+                commonInfoMap.put(data[0], data[1]);
+            }
+            Constants.setPreferredNeighborCount(Integer.parseInt(commonInfoMap.get("NumberOfPreferredNeighbors")));
+            Constants.setUnchokingInterval(Integer.parseInt(commonInfoMap.get("UnchokingInterval ")));
+            Constants.setOptimisticUnchokingInterval(Integer.parseInt(commonInfoMap.get("OptimisticUnchokingInterval ")));
+            Constants.FILE_PIECES_COUNT = Integer.parseInt(commonInfoMap.get("PieceSize"));
+            Constants.PIECE_SIZE_IN_BYTES = Integer.parseInt(commonInfoMap.get("FileSize "));
+            myReader.close();
+        } catch (Exception e) {
+            System.err.println("Something went wrong with Common.cfg file!");
+            e.printStackTrace();
+        }
+    }
+
+    public static void createPeerAndSocket(int peerId) {
+        try {
+            List<String> list = new ArrayList<>();
+            boolean hasDiscoveredCurrentPeer = false;
+            File fileName = new File("src\\PeerInfo.cfg");
+            Scanner myReader = new Scanner(fileName);
+            while (myReader.hasNextLine()) {
+                // 0 = peerId, 1 = hostName, 2 = portNumber, 3 = hasFile
+                String[] data = myReader.nextLine().split("\\s+");
+                if (Integer.parseInt(data[0]) == peerId) {
+                    Constants.setPeerId(peerId);
+                    serverSocket = new ServerSocket(Integer.parseInt(data[2]));
+                } else {
+                    list.add(data[0]);
+                    list.add(data[1]);
+                }
+                if (Integer.parseInt(data[3]) == 1) {
+                    Constants.HAS_FILE = true;
+                } else {
+                    list.add(data[2]);
+                }
+            }
+            peerList = list;
+            myReader.close();
+        } catch (Exception e) {
+            System.err.println("Something went wrong with PeerInfo.cfg file!");
+            e.printStackTrace();
+        }
     }
 }

@@ -100,6 +100,7 @@ public class FileUtils {
         try {
             FileOutputStream out = new FileOutputStream(Constants.FILE_DIRECTORY_PATH + "/" + index);
             out.write(bytes, offset, bytes.length-offset);
+            out.close();
         } catch (Exception e) {
             System.out.println("Error writing file! " + e);
         }
@@ -111,6 +112,7 @@ public class FileUtils {
             FileInputStream in = new FileInputStream(Constants.FILE_DIRECTORY_PATH + "/" + index);
             buffer = new byte[(int)in.getChannel().size()];
             in.read(buffer);
+            in.close();
         } catch (Exception e) {
             System.out.println("Error getting file bytes! " + e);
         }
