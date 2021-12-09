@@ -3,11 +3,13 @@ package Utils;
 import Models.HandshakeRequestModel;
 import Models.PeerInfoModel;
 import Models.RequestModel;
+import org.apache.commons.lang.ArrayUtils;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
 public class ConnectionHandler implements Runnable{
@@ -20,7 +22,7 @@ public class ConnectionHandler implements Runnable{
     boolean[] peerPieces;
     int[] requestedPieces = PeerInfoModel.getrequestedPieces();
     private static Random random = new Random();
-    private final String filePath = "C:\\Users\\W10\\Desktop\\UFL\\CN\\Project\\sample.jpg";
+    private final String filePath = "C:\\Users\\W10\\Desktop\\UFL\\CN\\Project\\samp le.jpg";
     public ConnectionHandler(Socket socket) {
         this.socket = socket;
     }
@@ -34,15 +36,29 @@ public class ConnectionHandler implements Runnable{
             handshake();
             System.out.println("handshake completed");
             sendBitfield();
+
             System.out.println("bitfield completed");
 
-            byte[] inputStreamByteArray = new byte[ 32777 ];
-            in.read(inputStreamByteArray);
-            //byte[] inputStreamPayload = ByteStreams.toByteArray(in);
+//            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+//            int read;
+//            while(true) {
+//                byte[] inputStreamByteArray = new byte[33000];
+//                read = in.read( inputStreamByteArray );
+//                buffer.write( inputStreamByteArray, 0, read );
+//                inputStreamByteArray = buffer.toByteArray();
+//                System.out.println("new message arrived");
+//                processInputStreamPayload(inputStreamByteArray);
+//            }
 
-            System.out.println("new message arrived");
-            processInputStreamPayload(inputStreamByteArray);
 
+            while(true) {
+                byte[] inputStreamByteArray = new byte[ 33000 ];
+                System.out.println("reading new message from inputstream");
+                int x = in.read(inputStreamByteArray, 0, inputStreamByteArray.length);
+                if(x <= 0) continue;
+                System.out.println("new message arrived");
+                processInputStreamPayload(inputStreamByteArray);
+            }
         } catch (Exception e) {
             //TODO: logger
         }
@@ -51,15 +67,17 @@ public class ConnectionHandler implements Runnable{
     private void handshake() {
         try{
             HandshakeRequestModel handshakeRequestModel = new HandshakeRequestModel();
+            out.flush();
             out.write(handshakeRequestModel.getBytes());
+//            out.flush();
             //TODO: read incoming handshake
             byte[] headerBytes = new byte[32];
             in.read(headerBytes);
             peerId = HandshakeRequestModel.getPeerHandshakeModel(headerBytes);
             addNewPeer(new PeerInfoModel(peerId));
+
             map.get(peerId).setOutputStream(out);
             selfPieces = map.get(Constants.SELF_PEER_ID).getPieces();
-            peerPieces = map.get(peerId).getPieces();
 
         } catch (Exception e) {
             System.out.println("handshake error! " + e);
@@ -70,9 +88,11 @@ public class ConnectionHandler implements Runnable{
 
     private void sendBitfield() throws IOException {
         try {
-            if(map.get(Constants.SELF_PEER_ID).getPieceCount() == 0) return;
+            //if(map.get(Constants.SELF_PEER_ID).getPieceCount() == 0) return;
             RequestModel requestModel = new RequestModel(Enums.MessageTypes.BITFIELD, map.get(Constants.SELF_PEER_ID).getPieces());
+            out.flush();
             out.write(requestModel.getBytes());
+//            out.flush();
         } catch (Exception e) {
             System.out.println("bitfield error");
         }
@@ -88,12 +108,14 @@ public class ConnectionHandler implements Runnable{
             int type = b[4];
             System.out.println("type: " + type);
             Enums.MessageTypes messageType = Enums.MessageTypes.values()[type];
+            System.out.println("Type of incoming request: " + messageType);
             switch (messageType) {
                 case BITFIELD:
                     processBitfieldRequest(b);
                     break;
                 case INTERESTED:
                     map.get(peerId).setInterested(true);
+                    setPreferredNeighbourAndUnchoke(peerId);
                     break;
                 case NOT_INTERESTED:
                     map.get(peerId).setInterested(false);
@@ -105,12 +127,14 @@ public class ConnectionHandler implements Runnable{
                     processIncomingChokeStatus();
                     break;
                 case HAVE:
-                    processIncomingHaveStatus(b);
+                    //processIncomingHaveStatus(b);
                     break;
                 case PIECE:
                     processIncomingPieceStatus(b);
+                    break;
                 case REQUEST:
                     processIncomingRequestStatus(b);
+                    break;
                 default:
                     System.out.println("invalid message type received");
             }
@@ -120,33 +144,60 @@ public class ConnectionHandler implements Runnable{
         }
     }
 
+//    private void processIncomingInterestedStatus() {
+//        PeerInfoModel peerInfoModel = map.get(peerId);
+//        peerInfoModel.setInterested(true);
+//        if(peerInfoModel.isOptimisticallyUnchoked() || peerInfoModel.isPreferredNeighbour()) {
+//
+//        }
+//    }
+
     private void processIncomingRequestStatus(byte[] b) {
         try {
-            int pieceIndex = ByteBuffer.wrap(new byte[]{b[5], b[6], b[7], b[8]}).getInt();
-            RequestModel requestModel = new RequestModel(Enums.MessageTypes.PIECE, FileUtils.getBytes(pieceIndex));
+            byte[] indexbytes = new byte[]{b[5], b[6], b[7], b[8]};
+            int pieceIndex = ByteBuffer.wrap(indexbytes).getInt();
+            byte[] bytes = ArrayUtils.addAll(indexbytes, FileUtils.getBytes(pieceIndex));
+
+            RequestModel requestModel = new RequestModel(Enums.MessageTypes.PIECE, bytes);
             if(map.get(peerId).isChoke()) return;
-            out.write(requestModel.getBytes());
+            byte[] bb = requestModel.getBytes();
+//           for(byte b1 : bb) {
+//               int x = (int)b1;
+//               //System.out.println();
+//           }
+//            TimeUnit.MILLISECONDS.sleep(300);
+            out.flush();
+            out.write(bb);
+//            out.flush();
+            System.out.println("PIECE sent " + pieceIndex + " size: " + bb.length);
         } catch (Exception e) {
             System.out.println("error processing incomingRequestStatus! " + e);
         }
     }
 
     private void processIncomingPieceStatus(byte[] b) {
-        //int pieceContentSize = ByteBuffer.wrap(new byte[]{b[0], b[1], b[2], b[3]}).getInt() - 5;
-        int pieceIndex = ByteBuffer.wrap(new byte[]{b[5], b[6], b[7], b[8]}).getInt();
-        //updateIncomingPiece(pieceContentSize, pieceIndex, Arrays.copyOfRange(b, 9, b.length));
-        updateIncomingPiece(b, pieceIndex, 9);
-        sendHaveMessage(pieceIndex);
-        selectAndSendRandomPieceRequest();
+        try{
+            //int pieceContentSize = ByteBuffer.wrap(new byte[]{b[0], b[1], b[2], b[3]}).getInt() - 5;
+            int pieceIndex = ByteBuffer.wrap(new byte[]{b[5], b[6], b[7], b[8]}).getInt();
+            //updateIncomingPiece(pieceContentSize, pieceIndex, Arrays.copyOfRange(b, 9, b.length));
+            updateIncomingPiece(b, pieceIndex, 9);
+            sendHaveMessage(pieceIndex);
+            selectAndSendRandomPieceRequest();
+        } catch (Exception e) {
+            System.out.println("Error processing piece status! " + e);
+        }
     }
 
     private void sendHaveMessage(int index) {
         try {
             RequestModel<Integer> requestModel = new RequestModel(Enums.MessageTypes.HAVE, index);
+            byte[] bytes = requestModel.getBytes();
             for(int peerID : map.keySet()) {
                 if(peerID == Constants.SELF_PEER_ID) continue;
                 OutputStream outputStream = map.get(peerID).getOutputStream();
-                outputStream.write(requestModel.getBytes());
+                outputStream.flush();
+                outputStream.write(bytes);
+//                outputStream.flush();
             }
         } catch (Exception e) {
             System.out.println("error in sendHaveMessages! " + e);
@@ -176,6 +227,7 @@ public class ConnectionHandler implements Runnable{
             }
         }
         map.get(peerId).setPieces(pieces);
+        peerPieces = pieces;
         checkAndSendInterestedStatus();
     }
 
@@ -196,7 +248,9 @@ public class ConnectionHandler implements Runnable{
         try {
             Enums.MessageTypes messageType = interested ? Enums.MessageTypes.INTERESTED : Enums.MessageTypes.NOT_INTERESTED;
             RequestModel requestModel = new RequestModel(messageType, null);
+            out.flush();
             out.write(requestModel.getBytes());
+//            out.flush();
         } catch (Exception e) {
             System.out.println("Error sending interested! " + e);
         }
@@ -207,6 +261,7 @@ public class ConnectionHandler implements Runnable{
     }
 
     private synchronized void selectAndSendRandomPieceRequest() {
+
         List<Integer> list = new ArrayList<>();
         for(int i = 0; i < selfPieces.length; i++) {
             if(!selfPieces[i] && peerPieces[i] && requestedPieces[i] <= 0) list.add(i);
@@ -230,7 +285,9 @@ public class ConnectionHandler implements Runnable{
         try {
             PeerInfoModel.getrequestedPieces()[index] = peerId;
             RequestModel<Integer> requestModel = new RequestModel(Enums.MessageTypes.REQUEST, index);
+            out.flush();
             out.write(requestModel.getBytes());
+//            out.flush();
         } catch (Exception e) {
             System.out.println("error in sendPieceRequest! " + e);
         }
@@ -257,7 +314,12 @@ public class ConnectionHandler implements Runnable{
             } else {
                 peerInfoModel.setPreferredNeighbour();
                 RequestModel requestModel = new RequestModel(Enums.MessageTypes.UNCHOKE, null);
-                peerInfoModel.getOutputStream().write(requestModel.getBytes());
+                System.out.println("Sending unchoking");
+                peerInfoModel.outputStream.flush();
+                peerInfoModel.outputStream.write(requestModel.getBytes());
+//                peerInfoModel.outputStream.flush();
+                System.out.println("Unchoke sent");
+                //peerInfoModel.getOutputStream().write(requestModel.getBytes());
             }
         } catch (Exception e) {
             System.out.println("Error unchoking peer " + peerId + "! " + e);
@@ -295,7 +357,9 @@ public class ConnectionHandler implements Runnable{
             }
             peerInfoModel.choke();
             RequestModel requestModel = new RequestModel(Enums.MessageTypes.CHOKE, null);
-            peerInfoModel.getOutputStream().write(requestModel.getBytes());
+            peerInfoModel.outputStream.write(requestModel.getBytes());
+            System.out.println("interested sent");
+            //peerInfoModel.getOutputStream().write(requestModel.getBytes());
         } catch (Exception e) {
             System.out.println("Error chocking optimistically unchoked neighbor " + peerId + "! " + e);
         }

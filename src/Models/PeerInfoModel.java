@@ -3,6 +3,7 @@ package Models;
 import Utils.Constants;
 
 import java.io.OutputStream;
+import java.util.Arrays;
 
 public class PeerInfoModel {
     private int peerId;
@@ -14,11 +15,12 @@ public class PeerInfoModel {
     private boolean optimisticallyUnchoked;
     private boolean preferredNeighbour;
     private int pieceCount;
-    private OutputStream outputStream;
+    public OutputStream outputStream;
 
     public PeerInfoModel(int peerId) {
         this.peerId = peerId;
         this.choke = true;
+        if(Constants.HAS_FILE) Arrays.fill(pieces, true);
     }
 
     public int getPeerId() {

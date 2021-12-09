@@ -33,12 +33,13 @@ public class RequestModel<T> {
         if(o == null) return null;
         byte[] res = null;
         try{
+            System.out.println("Type of the message in getPayLoad: " + e);
             if(e == Enums.MessageTypes.BITFIELD) {
                 boolean[] bitfield = (boolean[]) o;
                 BitSet bitset = new BitSet(bitfield.length);
                 System.out.println("bitsetlen: " + bitset.size());
                 System.out.println("size: " + bitfield.length + " " + bitset.size());
-                for(int i = 0; i < bitset.size(); i++) {
+                for(int i = 0; i < bitfield.length; i++) {
                     if(bitfield[i]) bitset.set(i, true);
                 }
                 res = bitset.toByteArray();
@@ -63,15 +64,19 @@ public class RequestModel<T> {
 
     public byte[] getBytes() {
         System.out.println("messageLength: " + getMessageLength());
-        byte[] res = new byte[getMessageLength()];
+        byte[] res = new byte[getMessageLength()+4];
         try {
             byte[] messageLengthBytes = ByteBuffer.allocate(4).putInt(this.messageLength).array();
             for(int i = 0; i < res.length; i++) {
                 if(i < 4) res[i] = messageLengthBytes[i];
-                else if(i == 5) res[i] = this.type;
-                else res[i] = this.payload[i-4];
+                else if(i == 4) {
+                    res[i] = this.type;
+                    System.out.println("message type: " + res[i]);
+                }
+                else res[i] = this.payload[i-5];
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("asdfgh" + e);
         }
         return res;
